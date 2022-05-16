@@ -112,7 +112,7 @@ def get_trade_details(tradeId: str, df):
                 quantity_1) + "," + str(quantity_2) + "," + str(purchase_price) + "," + str(sales_price) + "," + str(
                 profit_loss_in_original_currency) + "," + str(profit_loss_in_euros) + str(profit_loss_in_euros_calculated))
         return [tradeId, trade_type, trade_currency, opened_date, closed_date, price_1, price_2, price_1_in_euros, price_2_in_euros, quantity_1, quantity_2, purchase_price,
-                sales_price,
+                sales_price, purchase_price_in_euros, sales_price_in_euros,
                 profit_loss_in_original_currency, profit_loss_in_euros, profit_loss_in_euros_calculated]
     else:
         logging.error(
@@ -130,7 +130,7 @@ def summarize_trading(filename):
     input_df = pd.read_csv(input_directory + filename)
     output_df = pd.DataFrame(
         columns=['tradeId', 'trade_type', 'trade_currency', 'opened_date', 'closed_date', 'price_1', 'price_2', 'price_1_in_euros', 'price_2_in_euros', 'quantity_1',
-                 'quantity_2', 'purchase_price', 'sales_price', 'profit_loss_in_original_currency',
+                 'quantity_2', 'purchase_price', 'sales_price','purchase_price_in_euros', 'sales_price_in_euros', 'profit_loss_in_original_currency',
                  'profit_loss_in_euros', 'profit_loss_in_euros_calculated'])
     invalid_df = pd.DataFrame(['tradeId'])
     # drop duplicates from the list used for iterations so that we don't waste time repetition of operations for the same trade
@@ -148,10 +148,31 @@ def summarize_trading(filename):
             invalid_df.loc[count_for_invalid] = a_series
             count_for_invalid = count_for_invalid + 1
 
-    output_df.to_csv(output_directory + "output.csv", index=False)
+    output_df.to_csv(output_directory + "longs_and_shorts_output.csv", index=False)
+    longs_df = output_df.query('trade_type == "LONG"')
+    longs_df.to_csv(output_directory + "longs_output.csv", index=False)
+    shorts_df = output_df.query('trade_type == "SHORT"')
+    shorts_df.to_csv(output_directory + "shorts_output.csv", index=False)
     invalid_df.to_csv(output_directory + "invalid.csv", index=False)
 
+    print("\n********** LONGS **********")
+    print("Sum of purchases (in euros): " + str(longs_df['purchase_price_in_euros'].sum()))
+    print("Sum of sales (in euros): " + str(longs_df['sales_price_in_euros'].sum()))
+    print("Calculated Profit & Loss (in euros): " + str(longs_df['profit_loss_in_euros_calculated'].sum()))
+    print("Profit & Loss as reported by Capital.com (in euros): " + str(longs_df['profit_loss_in_euros'].sum()))
+
+    print("\n********** SHORTS **********")
+    print("Sum of purchases (in euros): " + str(shorts_df['purchase_price_in_euros'].sum()))
+    print("Sum of sales (in euros): " + str(shorts_df['sales_price_in_euros'].sum()))
+    print("Calculated Profit & Loss (in euros): " + str(shorts_df['profit_loss_in_euros_calculated'].sum()))
+    print("Profit & Loss as reported by Capital.com (in euros): " + str(shorts_df['profit_loss_in_euros'].sum()))
+
+    print("\n********** LONGS and SHORTS **********")
+    print("Sum of purchases (in euros): " + str(output_df['purchase_price_in_euros'].sum()))
+    print("Sum of sales (in euros): " + str(output_df['sales_price_in_euros'].sum()))
+    print("Calculated Profit & Loss (in euros): " + str(output_df['profit_loss_in_euros_calculated'].sum()))
+    print("Profit & Loss as reported by Capital.com (in euros): " + str(output_df['profit_loss_in_euros'].sum()))
 
 if __name__ == '__main__':
-    filename = "input.csv";
+    filename = "input.csv"
     summarize_trading(filename)
