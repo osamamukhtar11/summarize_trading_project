@@ -3,6 +3,9 @@ Trading summarizer for Capital.com
 
 git clone https://github.com/osamamukhtar11/summarize_trading_project.git
 
+# get required libraries
+pip install -r requirements.txt
+
 # Input file format (export an Activity report for OPENED and CLOSED activities from your Capital.com account)
 Trade Id,Exec Id,Account Id,Instrument Symbol,Instrument Name,Order Id,Currency,Execution Type,Quantity,Price,Take Profit,Stop Loss,gsl,Source,Status,rpl,Rpl Converted,Swap,Swap Converted,Fee,Timestamp,Account type
 
